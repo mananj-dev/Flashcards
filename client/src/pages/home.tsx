@@ -3,6 +3,7 @@ import Flashcard from "@/components/Flashcard";
 import FlashcardHeader from "@/components/FlashcardHeader";
 import FlashcardControls from "@/components/FlashcardControls";
 import FlashcardFooter from "@/components/FlashcardFooter";
+import FinalScore from "@/components/FinalScore";
 
 interface Card {
   q: string;
@@ -46,19 +47,20 @@ const initialDeck: Card[] = [
 
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [score, setScore] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set());
+  const [scores, setScores] = useState<Map<number, number>>(new Map());
+  const [isComplete, setIsComplete] = useState(false);
 
   const currentCard = initialDeck[currentIndex];
-
-  const handlePrevious = () => {
-    setCurrentIndex((prev) => (prev - 1 + initialDeck.length) % initialDeck.length);
-    setIsFlipped(false);
-  };
+  const totalScore = Array.from(scores.values()).reduce((sum, val) => sum + val, 0);
+  const answeredCount = answeredQuestions.size;
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % initialDeck.length);
-    setIsFlipped(false);
+    if (currentIndex < initialDeck.length - 1) {
+      setCurrentIndex((prev) => prev + 1);
+      setIsFlipped(false);
+    }
   };
 
   const handleShowAnswer = () => {
@@ -66,25 +68,60 @@ export default function Home() {
   };
 
   const handleKnew = () => {
-    setScore((prev) => prev + 1);
-    handleNext();
+    if (!answeredQuestions.has(currentIndex)) {
+      const newAnswered = new Set(answeredQuestions);
+      newAnswered.add(currentIndex);
+      setAnsweredQuestions(newAnswered);
+
+      const newScores = new Map(scores);
+      newScores.set(currentIndex, 1);
+      setScores(newScores);
+
+      if (newAnswered.size === initialDeck.length) {
+        setIsComplete(true);
+      } else {
+        handleNext();
+      }
+    }
   };
 
   const handleDidnt = () => {
-    handleNext();
+    if (!answeredQuestions.has(currentIndex)) {
+      const newAnswered = new Set(answeredQuestions);
+      newAnswered.add(currentIndex);
+      setAnsweredQuestions(newAnswered);
+
+      const newScores = new Map(scores);
+      newScores.set(currentIndex, 0);
+      setScores(newScores);
+
+      if (newAnswered.size === initialDeck.length) {
+        setIsComplete(true);
+      } else {
+        handleNext();
+      }
+    }
   };
 
   const handleFlip = () => {
     setIsFlipped((prev) => !prev);
   };
 
+  const handleRestart = () => {
+    setCurrentIndex(0);
+    setIsFlipped(false);
+    setAnsweredQuestions(new Set());
+    setScores(new Map());
+    setIsComplete(false);
+  };
+
   // Keyboard support
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") {
+      if (isComplete) return;
+      
+      if (e.key === "ArrowRight" && currentIndex < initialDeck.length - 1) {
         handleNext();
-      } else if (e.key === "ArrowLeft") {
-        handlePrevious();
       } else if (e.key === " " && e.target === document.body) {
         e.preventDefault();
         handleFlip();
@@ -93,7 +130,19 @@ export default function Home() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [currentIndex, isFlipped]);
+  }, [currentIndex, isFlipped, isComplete]);
+
+  if (isComplete) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-8">
+        <FinalScore
+          score={totalScore}
+          totalQuestions={initialDeck.length}
+          onRestart={handleRestart}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-8">
@@ -103,7 +152,7 @@ export default function Home() {
           subtitle="Flip cards. Track quick score."
           currentIndex={currentIndex}
           totalCards={initialDeck.length}
-          score={score}
+          score={totalScore}
         />
 
         <Flashcard
@@ -114,12 +163,13 @@ export default function Home() {
         />
 
         <FlashcardControls
-          onPrevious={handlePrevious}
           onNext={handleNext}
           onShowAnswer={handleShowAnswer}
           onKnew={handleKnew}
           onDidnt={handleDidnt}
           isFlipped={isFlipped}
+          isAnswered={answeredQuestions.has(currentIndex)}
+          isLastCard={currentIndex === initialDeck.length - 1}
         />
 
         <FlashcardFooter totalCards={initialDeck.length} />
