@@ -94,9 +94,7 @@ export default function Home() {
       }
       setScores(newScores);
 
-      if (newAnswered.size === initialDeck.length) {
-        setTimeout(() => setIsComplete(true), 100);
-      } else if (currentIndex < initialDeck.length - 1) {
+      if (currentIndex < initialDeck.length - 1) {
         handleNext();
       }
     }
@@ -112,9 +110,7 @@ export default function Home() {
       newScores.set(currentIndex, 0);
       setScores(newScores);
 
-      if (newAnswered.size === initialDeck.length) {
-        setTimeout(() => setIsComplete(true), 100);
-      } else if (currentIndex < initialDeck.length - 1) {
+      if (currentIndex < initialDeck.length - 1) {
         handleNext();
       }
     }
@@ -135,10 +131,10 @@ export default function Home() {
 
   // Check if all questions are answered
   useEffect(() => {
-    if (answeredQuestions.size === initialDeck.length && !isComplete) {
+    if (answeredQuestions.size === initialDeck.length) {
       setIsComplete(true);
     }
-  }, [answeredQuestions, isComplete]);
+  }, [answeredQuestions]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
