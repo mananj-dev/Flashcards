@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Eye, Check, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, Check, X } from "lucide-react";
 
 interface FlashcardControlsProps {
+  onPrevious: () => void;
   onNext: () => void;
   onShowAnswer: () => void;
   onKnew: () => void;
@@ -9,9 +10,12 @@ interface FlashcardControlsProps {
   isFlipped: boolean;
   isAnswered: boolean;
   isLastCard: boolean;
+  isFirstCard: boolean;
+  canScore: boolean;
 }
 
 export default function FlashcardControls({
+  onPrevious,
   onNext,
   onShowAnswer,
   onKnew,
@@ -19,9 +23,23 @@ export default function FlashcardControls({
   isFlipped,
   isAnswered,
   isLastCard,
+  isFirstCard,
+  canScore,
 }: FlashcardControlsProps) {
   return (
     <div className="flex flex-wrap items-center gap-3 mt-6">
+      {/* Previous Button */}
+      <Button
+        variant="outline"
+        onClick={onPrevious}
+        data-testid="button-previous"
+        className="gap-2"
+        disabled={isFirstCard}
+      >
+        <ChevronLeft className="w-4 h-4" />
+        Previous
+      </Button>
+
       {/* Show Answer */}
       <Button
         onClick={onShowAnswer}
@@ -39,7 +57,7 @@ export default function FlashcardControls({
           onClick={onKnew}
           data-testid="button-knew"
           className="gap-2"
-          disabled={isAnswered}
+          disabled={isAnswered || !canScore}
         >
           <Check className="w-4 h-4" />
           I knew it
@@ -56,8 +74,8 @@ export default function FlashcardControls({
         </Button>
       </div>
 
-      {/* Next Button - only shown after answering and not on last card */}
-      {isAnswered && !isLastCard && (
+      {/* Next Button */}
+      {!isLastCard && (
         <Button
           variant="outline"
           onClick={onNext}

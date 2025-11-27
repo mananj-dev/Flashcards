@@ -3,6 +3,7 @@ import FlashcardControls from "../FlashcardControls";
 export default function FlashcardControlsExample() {
   return (
     <FlashcardControls
+      onPrevious={() => console.log("Previous clicked")}
       onNext={() => console.log("Next clicked")}
       onShowAnswer={() => console.log("Show Answer clicked")}
       onKnew={() => console.log("I knew it clicked")}
@@ -10,6 +11,8 @@ export default function FlashcardControlsExample() {
       isFlipped={false}
       isAnswered={false}
       isLastCard={false}
+      isFirstCard={false}
+      canScore={true}
     />
   );
 }
