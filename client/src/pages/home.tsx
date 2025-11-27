@@ -89,8 +89,8 @@ export default function Home() {
       const newCount = answeredCount + 1;
       setAnsweredCount(newCount);
 
-      // Check if all questions are answered
-      if (newCount === initialDeck.length) {
+      // Check if all questions are answered or if on last question
+      if (newCount === initialDeck.length || currentIndex === initialDeck.length - 1) {
         setIsComplete(true);
       } else if (currentIndex < initialDeck.length - 1) {
         handleNext();
@@ -106,8 +106,8 @@ export default function Home() {
       const newCount = answeredCount + 1;
       setAnsweredCount(newCount);
 
-      // Check if all questions are answered
-      if (newCount === initialDeck.length) {
+      // Check if all questions are answered or if on last question
+      if (newCount === initialDeck.length || currentIndex === initialDeck.length - 1) {
         setIsComplete(true);
       } else if (currentIndex < initialDeck.length - 1) {
         handleNext();
