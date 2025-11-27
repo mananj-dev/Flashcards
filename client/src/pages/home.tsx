@@ -133,6 +133,13 @@ export default function Home() {
     setIsComplete(false);
   };
 
+  // Check if all questions are answered
+  useEffect(() => {
+    if (answeredQuestions.size === initialDeck.length && !isComplete) {
+      setIsComplete(true);
+    }
+  }, [answeredQuestions, isComplete]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isComplete) return;
