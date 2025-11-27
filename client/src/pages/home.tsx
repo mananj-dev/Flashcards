@@ -62,6 +62,7 @@ export default function Home() {
       const prevIndex = currentIndex - 1;
       const newNoScore = new Set(noScoreQuestions);
       newNoScore.add(prevIndex);
+      newNoScore.add(currentIndex);
       setNoScoreQuestions(newNoScore);
       setCurrentIndex(prevIndex);
       setIsFlipped(false);
