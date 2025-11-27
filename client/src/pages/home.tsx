@@ -48,14 +48,15 @@ const initialDeck: Card[] = [
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set());
-  const [scores, setScores] = useState<Map<number, number>>(new Map());
+  const [answeredCount, setAnsweredCount] = useState(0);
+  const [answers, setAnswers] = useState<{ [key: number]: number }>({});
   const [noScoreQuestions, setNoScoreQuestions] = useState<Set<number>>(new Set());
   const [isComplete, setIsComplete] = useState(false);
 
   const currentCard = initialDeck[currentIndex];
-  const totalScore = Array.from(scores.values()).reduce((sum, val) => sum + val, 0);
+  const totalScore = Object.values(answers).reduce((sum, val) => sum + val, 0);
   const canScore = !noScoreQuestions.has(currentIndex);
+  const isAnswered = answers[currentIndex] !== undefined;
 
   const handlePrevious = () => {
     if (currentIndex > 0) {
@@ -81,36 +82,34 @@ export default function Home() {
   };
 
   const handleKnew = () => {
-    if (!answeredQuestions.has(currentIndex)) {
-      const newAnswered = new Set(answeredQuestions);
-      newAnswered.add(currentIndex);
-      setAnsweredQuestions(newAnswered);
+    if (!isAnswered) {
+      const newAnswers = { ...answers };
+      newAnswers[currentIndex] = canScore ? 1 : 0;
+      setAnswers(newAnswers);
+      const newCount = answeredCount + 1;
+      setAnsweredCount(newCount);
 
-      const newScores = new Map(scores);
-      if (canScore) {
-        newScores.set(currentIndex, 1);
-      } else {
-        newScores.set(currentIndex, 0);
-      }
-      setScores(newScores);
-
-      if (currentIndex < initialDeck.length - 1) {
+      // Check if all questions are answered
+      if (newCount === initialDeck.length) {
+        setIsComplete(true);
+      } else if (currentIndex < initialDeck.length - 1) {
         handleNext();
       }
     }
   };
 
   const handleDidnt = () => {
-    if (!answeredQuestions.has(currentIndex)) {
-      const newAnswered = new Set(answeredQuestions);
-      newAnswered.add(currentIndex);
-      setAnsweredQuestions(newAnswered);
+    if (!isAnswered) {
+      const newAnswers = { ...answers };
+      newAnswers[currentIndex] = 0;
+      setAnswers(newAnswers);
+      const newCount = answeredCount + 1;
+      setAnsweredCount(newCount);
 
-      const newScores = new Map(scores);
-      newScores.set(currentIndex, 0);
-      setScores(newScores);
-
-      if (currentIndex < initialDeck.length - 1) {
+      // Check if all questions are answered
+      if (newCount === initialDeck.length) {
+        setIsComplete(true);
+      } else if (currentIndex < initialDeck.length - 1) {
         handleNext();
       }
     }
@@ -123,18 +122,11 @@ export default function Home() {
   const handleRestart = () => {
     setCurrentIndex(0);
     setIsFlipped(false);
-    setAnsweredQuestions(new Set());
-    setScores(new Map());
+    setAnsweredCount(0);
+    setAnswers({});
     setNoScoreQuestions(new Set());
     setIsComplete(false);
   };
-
-  // Check if all questions are answered
-  useEffect(() => {
-    if (answeredQuestions.size === initialDeck.length) {
-      setIsComplete(true);
-    }
-  }, [answeredQuestions]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -191,7 +183,7 @@ export default function Home() {
           onKnew={handleKnew}
           onDidnt={handleDidnt}
           isFlipped={isFlipped}
-          isAnswered={answeredQuestions.has(currentIndex)}
+          isAnswered={isAnswered}
           isLastCard={currentIndex === initialDeck.length - 1}
           isFirstCard={currentIndex === 0}
           canScore={canScore}
