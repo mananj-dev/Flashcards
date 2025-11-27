@@ -95,7 +95,7 @@ export default function Home() {
       setScores(newScores);
 
       if (newAnswered.size === initialDeck.length) {
-        setIsComplete(true);
+        setTimeout(() => setIsComplete(true), 100);
       } else if (currentIndex < initialDeck.length - 1) {
         handleNext();
       }
@@ -113,7 +113,7 @@ export default function Home() {
       setScores(newScores);
 
       if (newAnswered.size === initialDeck.length) {
-        setIsComplete(true);
+        setTimeout(() => setIsComplete(true), 100);
       } else if (currentIndex < initialDeck.length - 1) {
         handleNext();
       }
